@@ -6,14 +6,14 @@ typedef struct node{
     char c;
     int id;
     struct node *nextNode;
-    int x, y;
+    int myx, myy;
 }node;
 
 int row, col;
 int x ,y; 
 FILE *fp;
 WINDOW *topbar, *textbox, *bottombar, *textOuter;
-struct node* array = NULL, *end = NULL;
+struct node* array = NULL, *end = NULL, *tmp = NULL;
 int total = 0;
 
 int main(int argc,char *argv[])
@@ -25,32 +25,6 @@ int main(int argc,char *argv[])
   fp = fopen(argv[1], "r");
   
   if(fp){
-      char letter = '\0';
-      int counter = 0;
-      wmove(textbox, 0, 0);
-      while(fscanf(fp, "%c", &letter) != EOF){
-          getyx(textbox, y, x);
-          total++;
-          if(array == NULL){
-              array = (struct node*)malloc(sizeof(node));
-              array->c = letter;
-              array->id = counter;
-              array->nextNode = NULL;
-              array->x = x;
-              array->y = y;
-              end = array;
-          }
-          else{
-              end->nextNode = (struct node*)malloc(sizeof(node)); 
-              end->nextNode->c = letter;
-              end->nextNode->id = counter;
-              end->nextNode->nextNode = NULL;
-              end->x = x;
-              end->y = y;
-              end = end->nextNode;
-          }
-      }
-
       initscr();
       noecho();
       refresh();
@@ -64,17 +38,35 @@ int main(int argc,char *argv[])
       wrefresh(textOuter);
       bottombar = newwin(2, col, row-2, 0);
       mvwprintw(bottombar, 0, 1, "Click Q to quit - row 0 | col 0");
+      mvwprintw(bottombar, 1, 1, "Normal Mode");
       wrefresh(bottombar);
-    
+      char letter = '\0';
+      int counter = 0;
+      wmove(textbox, 0, 0);
       textbox = newwin(row-5, col-2, 2, 1);
 
-      struct node *tmp = array;
-      int first = 1;
-  		while(tmp != NULL){      	        
-            wprintw(textbox, "%c", tmp->c);
-      		tmp = tmp->nextNode;
-  		}
-        wrefresh(textbox);
+      while(fscanf(fp, "%c", &letter) != EOF){
+          total++;
+          if(array == NULL){
+              array = (struct node*)malloc(sizeof(node));
+              array->c = letter;
+              array->id = counter;
+              array->nextNode = NULL;
+              end = array;
+          }
+          else{
+              end->nextNode = (struct node*)malloc(sizeof(node)); 
+              end->nextNode->c = letter;
+              end->nextNode->id = counter;
+              end->nextNode->nextNode = NULL;
+              end = end->nextNode;
+          }
+          wprintw(textbox, "%c", end->c);
+          getyx(textbox, y, x);
+          end->myx = x;
+          end->myy = y;
+      } 
+
         wrefresh(textOuter);
         wrefresh(textbox); 
 
@@ -84,6 +76,7 @@ int main(int argc,char *argv[])
         int write = -1;
         while(quit == -1){
             getyx(textbox, y, x);
+            int localcopyx = x, localcopyy = y;
             c = getch();
             if(write == -1){
                 switch(c){
@@ -97,127 +90,163 @@ int main(int argc,char *argv[])
                         break;
                     case 'I':
                         write = 0;
-                        mvwprintw(bottombar, 1, 1, "insert mode");
+                        mvwprintw(bottombar, 1, 1, "Insert Mode");
                         break;
                     case 'i':
                         write = 0;
-                        mvwprintw(bottombar, 1, 1, "insert mode");
+                        mvwprintw(bottombar, 1, 1, "Insert Mode");
                         break;
                     case '\033':
                         getch();
                         switch(getch()){
                             case 'A'://arrow up
                                 if(y > 0){
-                                    wmove(textbox, y-1, x);
-                                    y = y-1;
-                                    x = x;
+                                    wmove(textbox, localcopyy-1, localcopyx);
+                                    localcopyy = localcopyy-1;
+                                    localcopyx = localcopyx;
                                 }
                                 wrefresh(textbox);
                                 break;
                             case 'B'://arrow down
                                 if(row-3 > y){
-                                    wmove(textbox, y+1, x);
-                                    y = y+1;
-                                    x = x;
+                                    wmove(textbox, localcopyy+1, localcopyx);
+                                    localcopyy = localcopyy+1;
+                                    localcopyx = localcopyx;
                                 }
                                 wrefresh(textbox);
                                 break;
                             case 'C'://arrow right
                                 if(col > x){
-                                    wmove(textbox, y, x+1);
-                                    y = y;
-                                    x = x+1;
+                                    wmove(textbox, localcopyy, localcopyx+1);
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx+1;
                                 }
                                 wrefresh(textbox);
                                 break;
                             case 'D'://arrow left
                                 if(x > 0){
-                                    wmove(textbox, y, x-1);
-                                    y = y;
-                                    x = x-1;
+                                    wmove(textbox, localcopyy, localcopyx-1);
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx-1;
                                 }
                                 wrefresh(textbox); 
                                 break;
-                        }        
-                        break;
-                    default:
-                        wprintw(textbox, "You clicked %c", (char)c);
-                        wrefresh(textbox);
-                        wrefresh(textOuter);
+                            default: 
+                                break;
+                        }
+                         mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
+            wrefresh(bottombar);
+            wmove(textbox, localcopyy, localcopyx);
+            wrefresh(textbox);
                         break;
                 }
             }
             else{
                 switch(c){
-                    case '\033':
-                        getch();
+                    case '\033': 
+                        nodelay(stdscr, TRUE);
+                        int a = getch();
+                        //mvwprintw(bottombar, 1, 15, "pressed:: %d", a);
+                        if(a == 27){
+                            mvwprintw(bottombar, 1, 1, "Normal Mode");
+                            wrefresh(bottombar);
+                            write = -1;
+                            break;
+                        }
+                        nodelay(stdscr, FALSE);
                         switch(getch()){
                             case 'A'://arrow up
                                 if(y > 0){
-                                    wmove(textbox, y-1, x);
-                                    y = y-1;
-                                    x = x;
+                                    wmove(textbox, localcopyy-1, localcopyx);
+                                    localcopyy = localcopyy-1;
+                                    localcopyx = localcopyx;
                                 }
                                 wrefresh(textbox);
                                 break;
                             case 'B'://arrow down
                                 if(row-3 > y){
-                                    wmove(textbox, y+1, x);
-                                    y = y+1;
-                                    x = x;
+                                    wmove(textbox, localcopyy+1, localcopyx);
+                                    localcopyy = localcopyy+1;
+                                    localcopyx = localcopyx;
                                 }
                                 wrefresh(textbox);
                                 break;
                             case 'C'://arrow right
                                 if(col > x){
-                                    wmove(textbox, y, x+1);
-                                    y = y;
-                                    x = x+1;
+                                    wmove(textbox, localcopyy, localcopyx+1);
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx+1;
                                 }
                                 wrefresh(textbox);
                                 break;
                             case 'D'://arrow left
                                 if(x > 0){
-                                    wmove(textbox, y, x-1);
-                                    y = y;
-                                    x = x-1;
+                                    wmove(textbox, localcopyy, localcopyx-1);
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx-1;
                                 }
                                 wrefresh(textbox); 
                                 break;
-                        }        
-                        break;
-                    default:
-                        wprintw(textbox, "testtest1");
-                        struct node *tmp = array;
-                        for(int i=0; i<total;i++){
-                            if(tmp->x == x && tmp->y == y){
-                               struct node *holder = tmp->nextNode;
-                               tmp->nextNode = (struct node*)malloc(sizeof(node));
-                               tmp->nextNode->c = c;
-                               tmp->nextNode->id = tmp->id + 1;
-                               tmp->nextNode->x = x;
-                               tmp->nextNode->y = y;
-                               tmp->nextNode->nextNode = holder;
-                            }
-                            else{
-                                tmp = tmp->nextNode;
-                            }
+                            default:
+                                mvwprintw(bottombar, 1, 1, "Normal Mode");
+                                wrefresh(bottombar);
+                                write = -1;
+                                break;
                         }
-                        wprintw(textbox, "testtest2");
-
-                        tmp = array;
-                        wmove(textbox, 0, 0);
-                        while(tmp != NULL){
-                            wprintw(textbox, "%c", tmp->c); 
-                        }
+                        mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
+                        wrefresh(bottombar);
+                        wmove(textbox, localcopyy, localcopyx);
                         wrefresh(textbox);
                         break;
+                    default:
+                        
+                        
+                        tmp = array;
+                        struct node *prev;
+                        
+                        while(tmp != NULL){
+                            
+                            //printf("%d %d %d %d", tmp->myx, x, tmp->myy, y);
+                            if(tmp->myx == x && tmp->myy == y){
+                               //printf("in if of loop");
+                               struct node *holder = tmp;
+                               tmp = (struct node*)malloc(sizeof(node));
+                               tmp->c = c;
+                               tmp->id = prev->id + 1;
+                               tmp->nextNode = holder;
+                               //tmp->nextNode->myx = x+1;
+                               prev->nextNode = tmp;
+                               break;
+                            }
+                            
+                            prev = tmp;
+                            tmp = tmp->nextNode;
+                        }
+
+                        
+ 
+                        tmp = array;
+                        wclear(textbox);
+                        wrefresh(textbox);
+                        wmove(textbox, 0, 0);
+                        while(tmp != NULL){
+                            getyx(textbox, y, x);
+                            wprintw(textbox, "%c", tmp->c); 
+                            tmp->myy = y;
+                            tmp->myx = x;
+                            tmp = tmp->nextNode;
+                        }
+                        mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
+            wrefresh(bottombar);
+            wmove(textbox, localcopyy, localcopyx);
+            wrefresh(textbox);
+                        wmove(textbox, localcopyy, localcopyx+1);
+                        wrefresh(textbox);
+                        break;
+                       
                 }
             }
-            mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
-            wrefresh(bottombar);
-            wmove(textbox, y, x);
-            wrefresh(textbox);
+            
         }
   }
   else{
@@ -226,5 +255,12 @@ int main(int argc,char *argv[])
 
   endwin();
   fclose(fp);
+
+  tmp = array;
+  while(tmp != NULL){
+      printf("%c", tmp->c);
+      tmp = tmp->nextNode;
+  }
+
   return(0);
 }
