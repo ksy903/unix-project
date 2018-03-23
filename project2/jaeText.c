@@ -16,6 +16,9 @@ WINDOW *topbar, *textbox, *bottombar, *textOuter;
 struct node* array = NULL, *end = NULL, *tmp = NULL;
 int total = 0;
 
+void copy(struct node *ary, WINDOW *textbox, int x, int y);
+void findEdges(int ax, int ay, int bx, int by, struct node *start, struct node *end);
+//int ax, int ay, struct node *start, struct node *end
 int main(int argc,char *argv[])
 {  
   if(argc != 2){
@@ -44,6 +47,7 @@ int main(int argc,char *argv[])
       int counter = 0;
       wmove(textbox, 0, 0);
       textbox = newwin(row-5, col-2, 2, 1);
+
 
       while(fscanf(fp, "%c", &letter) != EOF){
           total++;
@@ -96,6 +100,24 @@ int main(int argc,char *argv[])
                         write = 0;
                         mvwprintw(bottombar, 1, 1, "Insert Mode");
                         break;
+                    case 'z':
+                        ;
+                        int posX, posY;
+                        getyx(textbox, posY, posX);
+                        copy(array, textbox, posX, posY);
+                        
+                        break;
+                    case 'Z':
+                        ; 
+                        getyx(textbox, posY, posX);
+                        copy(array, textbox, posX, posY); 
+                        break;
+                    case 'y':
+
+                        break;
+                    case 'Y':
+
+                        break;
                     case '\033':
                         getch();
                         switch(getch()){
@@ -134,10 +156,10 @@ int main(int argc,char *argv[])
                             default: 
                                 break;
                         }
-                         mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
-            wrefresh(bottombar);
-            wmove(textbox, localcopyy, localcopyx);
-            wrefresh(textbox);
+                        mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
+                        wrefresh(bottombar);
+                        wmove(textbox, localcopyy, localcopyx);
+                        wrefresh(textbox);
                         break;
                 }
             }
@@ -263,4 +285,54 @@ int main(int argc,char *argv[])
   }
 
   return(0);
+}
+
+void copy(struct node *ary, WINDOW *textbox, int x, int y){
+    int localcopyy = y, localcopyx = x;
+    mvwprintw(bottombar, 1, 20, "Copy Mode - Use arrows to move, and 'c' to copy");
+    switch(getch()){
+        case 'A'://arrow up
+            if(y > 0){
+                wmove(textbox, localcopyy-1, localcopyx);
+                localcopyy = localcopyy-1;
+                localcopyx = localcopyx;
+            }
+            wrefresh(textbox);
+            break;
+        case 'B'://arrow down
+            if(row-3 > y){
+                wmove(textbox, localcopyy+1, localcopyx);
+                localcopyy = localcopyy+1;
+                localcopyx = localcopyx;
+            }
+            wrefresh(textbox);
+            break;
+        case 'C'://arrow right
+            if(col > x){
+                wmove(textbox, localcopyy, localcopyx+1);
+                localcopyy = localcopyy;
+                localcopyx = localcopyx+1;
+            }
+            wrefresh(textbox);
+            break;
+        case 'D'://arrow left
+            if(x > 0){
+                wmove(textbox, localcopyy, localcopyx-1);
+                localcopyy = localcopyy;
+                localcopyx = localcopyx-1;
+            }
+            wrefresh(textbox); 
+            break;
+        default:
+            mvwprintw(bottombar, 1, 1, "Normal Mode");
+            wrefresh(bottombar);
+            break;
+    }   
+}
+
+void findEdges(int ax, int ay, int bx, int by, struct node *start, struct node *end){
+    struct node *tmp = array;
+    while(tmp != NULL){
+        if(tmp->myx = ax); 
+    }
 }
