@@ -32,12 +32,17 @@ int main()
           }
           else{
               end->nextNode = (struct node*)malloc(sizeof(node)); 
-              end->c = letter;
-              end->id = counter;
+              end->nextNode->c = letter;
+              end->nextNode->id = counter;
               end->nextNode->nextNode = NULL;
               end = end->nextNode;
           }
-      } 
+      }
+      struct node *tmp = array;
+  		while(tmp != NULL){
+      		printf("%c", tmp->c);
+      		tmp = tmp->nextNode;
+  		}
   }
   else{
       //bad filename
@@ -55,11 +60,7 @@ int main()
   endwin();
   */
 
-  struct node *tmp = array;
-  while(tmp != NULL){
-      printf("%c", tmp->c);
-      tmp = tmp->nextNode;
-  }
+  
 
   return(0);
 }
