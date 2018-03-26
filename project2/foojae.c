@@ -8,6 +8,8 @@ typedef struct node{
     struct node *nextNode;
 }node;
 
+void copy(struct node* ary, WINDOW *win); 
+
 int main()
 {
   //initscr(); //creates stdscr
@@ -43,6 +45,13 @@ int main()
       		printf("%c", tmp->c);
       		tmp = tmp->nextNode;
   		}
+
+        int c = -1;
+        while(1==1){
+            c = getch();
+            //if(c!=-1)copy();
+        }
+
   }
   else{
       //bad filename
@@ -64,3 +73,10 @@ int main()
 
   return(0);
 }
+
+void copy(struct node* ary, WINDOW *win){
+    int x, y;
+    getyx(win, y, x);
+    printf("%d %d\n", y, x);
+}
+
