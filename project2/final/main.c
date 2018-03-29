@@ -34,7 +34,8 @@ int main(int argc,char *argv[])
       box(textOuter, 0, 0);
       wrefresh(textOuter);
       bottombar = newwin(2, col, row-2, 0);
-      mvwprintw(bottombar, 0, 1, "Click Q to quit - row 0 | col 0");
+     mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : for command mode ");
+      mvwprintw(bottombar, 0, col-15, "row 0 | col 0");
       mvwprintw(bottombar, 1, 1, "Normal Mode");
       wrefresh(bottombar);
       char letter = '\0';
@@ -83,12 +84,16 @@ int main(int argc,char *argv[])
                     case 'z':
                         getyx(textbox, posY, posX);
                         copy(array, textbox, posX, posY);
+						mvwprintw(bottombar, 1, 1, "\n");
+                         mvwprintw(bottombar, 1, 1, "Copied");
                         //mvwprintw(bottombar, 1, 1, "\n");
                         wrefresh(bottombar);
                         break;
                     case 'Z':
                         getyx(textbox, posY, posX);
                         copy(array, textbox, posX, posY);
+						mvwprintw(bottombar, 1, 1, "\n");
+                         mvwprintw(bottombar, 1, 1, "Copied");
                         //mvwprintw(bottombar, 1, 1, "\n");
                         wrefresh(bottombar);
                         break;
@@ -109,11 +114,37 @@ int main(int argc,char *argv[])
                     case 'y':
                         getyx(textbox, posY, posX);
                         paste(posX, posY);
+						mvwprintw(bottombar, 1, 1, "\n");
+                         mvwprintw(bottombar, 1, 1, "Pasted");
+                         wrefresh(bottombar);
+             wrefresh(textbox);
                         break;
                     case 'Y':
                         getyx(textbox, posY, posX);
                         paste(posX, posY);
+						mvwprintw(bottombar, 1, 1, "\n");
+                         mvwprintw(bottombar, 1, 1, "Pasted");
+                         wrefresh(bottombar);
+             wrefresh(textbox);
                         break;
+					case 's':
+                         save(array, argv[1]);
+                         mvwprintw(bottombar, 1, 1, "\n");
+                         mvwprintw(bottombar, 1, 1, "Saved");
+                         wrefresh(bottombar);
+                         break;
+                     case 'S':
+                         save(array, argv[1]);
+                         mvwprintw(bottombar, 1, 1, "\n");
+                         mvwprintw(bottombar, 1, 1, "Saved");
+                         wrefresh(bottombar);
+                         break;
+					case ':':
+             mvwprintw(bottombar,1,1, "\n");
+             mvwprintw(bottombar,1,1, "Command Mode: ");
+             wrefresh(bottombar);
+             toCommand(array, argv);
+             break;
                     case KEY_UP:
                         if(y > 0){
                                     localcopyy = localcopyy-1;
@@ -141,6 +172,17 @@ int main(int argc,char *argv[])
 
                 
                 }
+                /*
+                chtype cursorChar = winch(textbox);
+                if(cursorChar == -1){
+                    localcopyy = y;
+                    localcopyx = x;
+                }
+                */
+                mvwprintw(bottombar, 0, 1, "\n");
+           mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : for command mode");
+                         mvwprintw(bottombar, 0, col-18, "row %d | col %d", localcopyy,localcopyx);
+                         wrefresh(bottombar);
             }
             else{
                 switch(c){
@@ -206,6 +248,10 @@ int main(int argc,char *argv[])
                         break;
                        
                 }
+                mvwprintw(bottombar, 0, 1, "\n");
+           mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : for command mode | ESC to go to Normal Mode ");
+                         mvwprintw(bottombar, 0, col-18, "row %d | col %d", localcopyy,localcopyx);
+                         wrefresh(bottombar);
             }
             struct node *tmp = array;
             wclear(textbox);
@@ -223,8 +269,7 @@ int main(int argc,char *argv[])
             }
             wmove(textbox, localcopyy, localcopyx);
             wrefresh(textbox);
-            mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d", localcopyy, localcopyx);
-                wrefresh(bottombar);
+			 
                 wmove(textbox, localcopyy, localcopyx);
                wrefresh(textbox);
             
