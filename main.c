@@ -9,6 +9,7 @@
 #include "changemode.h"
 #include "edittext.h"
 #include "addline.h"
+#include "commandmode.h"
 #include "searchreplace.h"
 
 int main(int argc,char *argv[])
@@ -18,7 +19,7 @@ int main(int argc,char *argv[])
   return(1);
   }
   fp = fopen(argv[1], "r");
-  
+
   if(fp){
       initscr();
       noecho();
@@ -32,8 +33,8 @@ int main(int argc,char *argv[])
       box(textOuter, 0, 0);
       wrefresh(textOuter);
       bottombar = newwin(2, col, row-2, 0);
-      mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : to get back to command mode ");
-      mvwprintw(bottombar, 0, col-18, "row 0 | col 0"); 
+      mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : for command mode ");
+      mvwprintw(bottombar, 0, col-15, "row 0 | col 0"); 
       mvwprintw(bottombar, 1, 1, "Normal Mode");
       wrefresh(bottombar);
       char letter = '\0';
@@ -98,7 +99,8 @@ int main(int argc,char *argv[])
                         paste(posX, posY);
                         mvwprintw(bottombar, 1, 1, "\n"); 
                         mvwprintw(bottombar, 1, 1, "Pasted"); 
-                        wrefresh(bottombar); 
+                        wrefresh(bottombar);
+			wrefresh(textbox); 
                         break;
                     case 'Y':
                         getyx(textbox, posY, posX);
@@ -119,6 +121,12 @@ int main(int argc,char *argv[])
                         mvwprintw(bottombar, 1, 1, "Saved"); 
                         wrefresh(bottombar); 
                         break;
+		    case ':':
+			mvwprintw(bottombar,1,1, "\n");
+			mvwprintw(bottombar,1,1, "Command Mode: ");
+			wrefresh(bottombar);
+			toCommand(array, argv);
+			break;
                     case '\033':
                         getch();
                         switch(getch()){
@@ -149,7 +157,7 @@ int main(int argc,char *argv[])
                             default: 
                                 break;
                         }
-                        mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : to get back to command mode ");
+                        mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : for command mode ");
                         mvwprintw(bottombar, 0, col - 18, "row %d | col %d0", localcopyy, localcopyx); 
                         wrefresh(bottombar);
                         wmove(textbox, localcopyy, localcopyx);
@@ -210,7 +218,7 @@ int main(int argc,char *argv[])
                                 write = -1;
                                 break;
                         }
-                        mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : to get back to command mode ");
+                        mvwprintw(bottombar, 0, 1, "Press Q to quit | S to save | Z to copy | Y to paste | I to insert | F to search | : for command mode ");
                         mvwprintw(bottombar, 0, col-18, "row %d | col %d", y,x); 
                         wrefresh(bottombar);
                         wmove(textbox, localcopyy, localcopyx);
