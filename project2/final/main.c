@@ -67,12 +67,18 @@ int main(int argc,char *argv[])
                         quit = 1;
                         break;
                     case 'I':
-                        write = 0;
-                        mvwprintw(bottombar, 1, 1, "Insert Mode");
+                        toWrite(); 
                         break;
                     case 'i':
-                        write = 0;
-                        mvwprintw(bottombar, 1, 1, "Insert Mode");
+                        toWrite(); 
+                        break;
+                    case 'R':
+                        getyx(textbox, posY, posX);
+                        searchreplace(posX, posY);
+                        break;
+                    case 'r':
+                        getyx(textbox, posY, posX);
+                        searchreplace(posX, posY);
                         break;
                     case 'z':
                         getyx(textbox, posY, posX);
@@ -183,13 +189,9 @@ int main(int argc,char *argv[])
 
             case 27:
                              nodelay(textbox, true);
-                    mvwprintw(bottombar, 1, 1, "\n");
-                     mvwprintw(bottombar, 1, 1, "Normal Mode");
-                        wrefresh(bottombar);
+                   toNormal(); 
                         wmove(textbox, localcopyy, localcopyx);
-                        wrefresh(textbox);
-                        
-                            write = -1;
+                     
                         
                         //   getch();
                         //wechochar(textbox, '\0'); 
@@ -198,45 +200,8 @@ int main(int argc,char *argv[])
             default:    
                         tmp = array;
                         
-                        
-                        while(tmp != NULL){
-                            
-                            //printf("%d %d %d %d", tmp->myx, x, tmp->myy, y);
-                            if(tmp->myx == x && tmp->myy == y){
-                               //printf("in if of loop");
-                               struct node *holder = tmp;
-                               tmp = (struct node*)malloc(sizeof(node));
-                               tmp->c = c;
-                               tmp->id = prev->id + 1;
-                               tmp->nextNode = holder;
-                               //tmp->nextNode->myx = x+1;
-                               prev->nextNode = tmp;
-                               break;
-                            }
-                            
-                            prev = tmp;
-                            tmp = tmp->nextNode;
-                        }
-
-                        
- 
-                        tmp = array;
-                        wclear(textbox);
-                        wrefresh(textbox);
-                        wmove(textbox, 0, 0);
-                        while(tmp != NULL){
-                            getyx(textbox, y, x);
-                            wprintw(textbox, "%c", tmp->c); 
-                            tmp->myy = y;
-                            tmp->myx = x;
-                            tmp = tmp->nextNode;
-                        }
-                        mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
-                        wrefresh(bottombar);
-                        wmove(textbox, localcopyy, localcopyx);
-                        wrefresh(textbox);
-                        wmove(textbox, localcopyy, localcopyx+1);
-                        wrefresh(textbox);
+                       insertChar(c); 
+                       
                         localcopyx++;
                         break;
                        
@@ -264,8 +229,6 @@ int main(int argc,char *argv[])
                wrefresh(textbox);
             
         }
-
-        wechochar(textbox, '\0');
         
   }
   else{

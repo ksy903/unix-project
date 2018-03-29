@@ -9,6 +9,7 @@ void toNormal(){
 
     mvwprintw(bottombar, 0, 1, "\n");
     mvwprintw(bottombar, 0, 1, "Normal Mode");
+    wrefresh(bottombar);
 }
 
 void toWrite(){
@@ -16,4 +17,5 @@ void toWrite(){
 
     mvwprintw(bottombar, 0, 1, "\n");
     mvwprintw(bottombar, 0, 1, "Insert Mode");
+    wrefresh(bottombar);
 }
