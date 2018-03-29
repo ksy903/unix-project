@@ -22,6 +22,8 @@ int main(int argc,char *argv[])
   if(fp){
       initscr();
       noecho();
+      cbreak();
+      keypad(stdscr, TRUE);
       refresh();
       getmaxyx(stdscr, row, col);
       topbar = newwin(1, col, 0, 0);
@@ -52,6 +54,7 @@ int main(int argc,char *argv[])
         while(quit == -1){
             getyx(textbox, y, x);
             int localcopyx = x, localcopyy = y;
+            nodelay(textbox, false);
             c = getch();
             if(write == -1){
                 switch(c){
@@ -105,110 +108,66 @@ int main(int argc,char *argv[])
                         getyx(textbox, posY, posX);
                         paste(posX, posY);
                         break;
-                    case '\033':
-                        getch();
-                        switch(getch()){
-                            case 'A'://arrow up
-                                if(y > 0){
+                    case KEY_UP:
+                        if(y > 0){
                                     localcopyy = localcopyy-1;
                                     localcopyx = localcopyx;
                                 }
-                                break;
-                            case 'B'://arrow down
-                                if(row-3 > y){
+                        break;
+                case KEY_DOWN:
+                        if(row-3 > y){
                                     localcopyy = localcopyy+1;
                                     localcopyx = localcopyx;
                                 }
-                                break;
-                            case 'C'://arrow right
-                                if(col > x){
-                                    localcopyy = localcopyy;
-                                    localcopyx = localcopyx+1;
-                                }
-                                break;
-                            case 'D'://arrow left
-                                if(x > 0){
+                        break;
+                case KEY_LEFT:
+                        if(x > 0){
                                     localcopyy = localcopyy;
                                     localcopyx = localcopyx-1;
                                 }
                                 break;
-                            default: 
+                case KEY_RIGHT:
+                        if(col > x){
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx+1;
+                                }
                                 break;
-                        }
-                        mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d", localcopyy, localcopyx);
-                        wrefresh(bottombar);
-                        wmove(textbox, localcopyy, localcopyx);
-                        wrefresh(textbox);
-                        break;
+
+                
                 }
             }
             else{
                 switch(c){
-                    case '\033': 
-                        nodelay(stdscr, TRUE);
-                        int a = getch();
-                        //mvwprintw(bottombar, 1, 15, "pressed:: %d", a);
-                        if(a == 27){
-                            mvwprintw(bottombar, 1, 1, "Normal Mode");
-                            wrefresh(bottombar);
-                            write = -1;
-                            break;
-                        }
-                        
-                        nodelay(stdscr, FALSE);
-                        switch(getch()){
-                            case 'A'://arrow up
-                                if(y > 0){
-                                    wmove(textbox, localcopyy-1, localcopyx);
+                case KEY_UP:
+                        if(y > 0){
                                     localcopyy = localcopyy-1;
                                     localcopyx = localcopyx;
                                 }
-                                wrefresh(textbox);
-                                break;
-                            case 'B'://arrow down
-                                if(row-3 > y){
-                                    wmove(textbox, localcopyy+1, localcopyx);
+                        break;
+                case KEY_DOWN:
+                        if(row-3 > y){
                                     localcopyy = localcopyy+1;
                                     localcopyx = localcopyx;
                                 }
-                                wrefresh(textbox);
-                                break;
-                            case 'C'://arrow right
-                                if(col > x){
-                                    wmove(textbox, localcopyy, localcopyx+1);
-                                    localcopyy = localcopyy;
-                                    localcopyx = localcopyx+1;
-                                }
-                                wrefresh(textbox);
-                                break;
-                            case 'D'://arrow left
-                                if(x > 0){
-                                    wmove(textbox, localcopyy, localcopyx-1);
+                        break;
+                case KEY_LEFT:
+                        if(x > 0){
                                     localcopyy = localcopyy;
                                     localcopyx = localcopyx-1;
                                 }
-                                wrefresh(textbox); 
                                 break;
-                            default:
-                                mvwprintw(bottombar, 1, 1, "Normal Mode");
-                                wrefresh(bottombar);
-                                write = -1;
+                case KEY_RIGHT:
+                        if(col > x){
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx+1;
+                                }
                                 break;
-                        }
-                        mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d",y, x);
-                        wrefresh(bottombar);
-                        wmove(textbox, localcopyy, localcopyx);
-                        wrefresh(textbox);
-                        break;
-                    case KEY_BACKSPACE:
-                        ;
-                        mvwprintw(bottombar, 1, 1, "backspace");
-                        wrefresh(bottombar);
-                        wmove(textbox, localcopyy, localcopyx);
-                        wrefresh(textbox);
-                        a = getch();
-                        if(a == '?'){
-                            struct node *tmp = array, *prev = NULL;
+
+
+                    case KEY_BACKSPACE: 
+                                               
+                        tmp = array;
+                        struct node *prev = NULL;
                             while(tmp != NULL){
                                 if(tmp->myy == localcopyy && tmp->myx == localcopyx){
                                     prev->nextNode = tmp->nextNode;
@@ -218,13 +177,27 @@ int main(int argc,char *argv[])
                                 prev = tmp;
                                 tmp = tmp->nextNode;
                             }
-                        }
+                       localcopyx--; 
+                        
                         break;
-                    default:
+
+            case 27:
+                             nodelay(textbox, true);
+                    mvwprintw(bottombar, 1, 1, "\n");
+                     mvwprintw(bottombar, 1, 1, "Normal Mode");
+                        wrefresh(bottombar);
+                        wmove(textbox, localcopyy, localcopyx);
+                        wrefresh(textbox);
                         
+                            write = -1;
                         
+                        //   getch();
+                        //wechochar(textbox, '\0'); 
+                        break;
+
+            default:    
                         tmp = array;
-                        struct node *prev;
+                        
                         
                         while(tmp != NULL){
                             
@@ -285,7 +258,15 @@ int main(int argc,char *argv[])
             }
             wmove(textbox, localcopyy, localcopyx);
             wrefresh(textbox);
-        } 
+            mvwprintw(bottombar, 0, 1, "Click Q to quit - row %d | col %d", localcopyy, localcopyx);
+                wrefresh(bottombar);
+                wmove(textbox, localcopyy, localcopyx);
+               wrefresh(textbox);
+            
+        }
+
+        wechochar(textbox, '\0');
+        
   }
   else{
       //bad filename
