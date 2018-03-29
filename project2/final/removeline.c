@@ -37,7 +37,9 @@ void removeLine(WINDOW *textbox, int y, int x,struct node* array){
    //prev->nextNode = after;
    array = array->nextNode;
    //here
+   wmove(textbox, 0, 0);
    wclear(textbox);
+   wrefresh(textbox);
    wmove(textbox, 0, 0);
    tmp = array;
    int tmpx, tmpy;
