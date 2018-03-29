@@ -284,13 +284,13 @@ int main(int argc,char *argv[])
 
   endwin();
   fclose(fp);
-
+    /*
   tmp = array;
   while(tmp != NULL){
       printf("%c", tmp->c);
       tmp = tmp->nextNode;
   }
-
+    */
   return(0);
 }
 

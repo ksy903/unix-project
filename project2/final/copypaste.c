@@ -45,42 +45,51 @@
              localcopyy = y;
              localcopyx = x;
              switch(getch()){
-                 case '\033':
-                     getch();
-                     switch(getch()){
-                         case 'A'://arrow up
-                             if(y > 0){
-                                 wmove(textbox, localcopyy-1, localcopyx);
-                                 localcopyy = localcopyy-1;
-                                 localcopyx = localcopyx;
-                             }
-                             wrefresh(textbox);
-                             break;
-                         case 'B'://arrow down
-                             if(row-3 > y){
-                                 wmove(textbox, localcopyy+1, localcopyx);
-                                 localcopyy = localcopyy+1;
-                                 localcopyx = localcopyx;
-                             }
-                             wrefresh(textbox);
-                             break;
-                         case 'C'://arrow right
-                             if(col > x){
-                                 wmove(textbox, localcopyy, localcopyx+1);
-                                 localcopyy = localcopyy;
-                                 localcopyx = localcopyx+1;
-                             }
-                             wrefresh(textbox);
-                             break;
-                         case 'D'://arrow left
-                             if(x > 0){
-                                 wmove(textbox, localcopyy, localcopyx-1);
-                                 localcopyy = localcopyy;
-                                 localcopyx = localcopyx-1;
-                             }
-                             wrefresh(textbox);
-                             break;
+                 case KEY_UP:
+                        if(y > 0){
+                                    localcopyy = localcopyy-1;
+                                    localcopyx = localcopyx;
+                                }
+                      copyTxt = NULL;
+                     end = findNode(localcopyx, localcopyy);
+                     if(start != NULL && end != NULL){
+                         highlight(start, end);
                      }
+                     wmove(textbox, localcopyy, localcopyx);
+                     wrefresh(textbox);
+                     break;  
+                case KEY_DOWN:
+                        if(row-3 > y){
+                                    localcopyy = localcopyy+1;
+                                    localcopyx = localcopyx;
+                                }
+                       copyTxt = NULL;
+                     end = findNode(localcopyx, localcopyy);
+                     if(start != NULL && end != NULL){
+                         highlight(start, end);
+                     }
+                     wmove(textbox, localcopyy, localcopyx);
+                     wrefresh(textbox);
+                     break; 
+                case KEY_LEFT:
+                        if(x > 0){
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx-1;
+                                }
+                      copyTxt = NULL;
+                     end = findNode(localcopyx, localcopyy);
+                     if(start != NULL && end != NULL){
+                         highlight(start, end);
+                     }
+                     wmove(textbox, localcopyy, localcopyx);
+                     wrefresh(textbox);
+                     break;          
+                case KEY_RIGHT:
+                        if(col > x){
+                                    localcopyy = localcopyy;
+                                    localcopyx = localcopyx+1;
+                                }
+                                
                      copyTxt = NULL;
                      end = findNode(localcopyx, localcopyy);
                      if(start != NULL && end != NULL){
